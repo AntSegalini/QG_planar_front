@@ -1,0 +1,2 @@
+# fileName_root, Nx, Ny, Nz, Lx [m], Ly [m], Lz [m], DT [s], f0 [1/s], beta [1/m*s], nu, p, Initial_perturbation, kx_initial, ky_initial, Nsave, Tfinal [s], dealising, nonlinear, r [m]
+CASE_beta_30	4	4	15	1823810.0	1823810.0	10000.0	3600	0.000072921	1.982465e-11	0	1	0.1	1	1	5000	5000000	.false.	.true.	0
