@@ -162,4 +162,13 @@ where:
 
 Changing any of these independently will break the model balance and lead to unrealistic dynamics. The output timescale calculation needs to be updated at `QG_plane_front.f90` for consistency.
 
+### `threeD_FFTW_CHEB.f90`
+A spectral transform module providing:
+- 3D transform operations combining FFT (horizontal, using FFTW3-MPI) and Chebyshev polynomials (vertical).
+- Grid-to-spectral and spectral-to-grid conversions for both full and dealiased grids.
+- MPI parallelization in the y-direction (grid space) and kx-direction (spectral space).
+- Chebyshev differentiation matrices and derivatives in spectral space.
+- Essential utilities for managing grid coordinates, wavenumbers, and domain partitioning across processors.
+
+
 ---
