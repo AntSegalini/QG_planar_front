@@ -103,6 +103,8 @@ Inside this program:
 - `Ujet`: **Jet velocity** (currently hardcoded as 60 m/s)
 - `Tdamping_days`: **Damping timescale in days** (currently hardcoded as 2.7557)
 
+══════════════════
+
 ### `INPUT.txt`
 
 All simulation parameters are specified in `INPUT.txt`. Below is a detailed description of each parameter:
@@ -132,7 +134,9 @@ All simulation parameters are specified in `INPUT.txt`. Below is a detailed desc
 
 **The three different cases treated in the scientific article can be found at `INPUT_Run1.txt`, `INPUT_Run2.txt` and `INPUT_Run3.txt`.**
 
-### `PROFILES.py`
+══════════════════
+
+### `create_profiles_and_Ts.py`
 A Python utility for generating atmospheric background profiles and computing the model's characteristic timescales.
 
 **Functions:**
@@ -161,6 +165,9 @@ where:
 4. `f0` and `Lz` in the Fortran INPUT.txt
 
 Changing any of these independently will break the model balance and lead to unrealistic dynamics. The output timescale calculation needs to be updated at `QG_plane_front.f90` for consistency.
+
+
+══════════════════
 
 ### `threeD_FFTW_CHEB.f90`
 A spectral transform module providing:
