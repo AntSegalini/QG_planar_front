@@ -91,9 +91,7 @@ A Python utility for generating atmospheric background profiles and computing th
 
 In the QG framework, **parameters are interdependent** and cannot be freely chosen independently. The model's characteristic timescale is governed by:
 
-\[
-T_s = \frac{\eta \cdot N \cdot H}{f \cdot U_{max}}
-\]
+`T_s = eta * N * H / f / Umax`
 
 where:
 - η: Non-dimensional scaling factor
