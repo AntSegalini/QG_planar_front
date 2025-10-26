@@ -33,25 +33,49 @@ This implementation is particularly valuable for researchers interested in atmos
 
 ---
 
-## Scientific Context
+## Code Structure
 
-### The Quasi-Geostrophic Approximation
+### `QG_plane_front.f90`
+The main solver program that:
+- Sets up the quasi-geostrophic problem with β-plane geometry and baroclinic shear.
+- Initializes the computational grid (Fourier in horizontal, Chebyshev in vertical) and atmospheric profiles.
+- Solves the potential vorticity equation using pseudo-spectral methods with MPI parallelization.
+- Implements time integration via Euler (first step) and Leapfrog schemes with semi-implicit treatment of dissipation.
+- Handles PV inversion to compute streamfunction and velocity fields from PV anomalies.
+- Outputs velocity and vorticity fields at specified intervals.
 
-The QG approximation assumes a dominant balance between Coriolis and pressure gradient forces, making it ideal for studying:
-- **Baroclinic instability** in stratified sheared flows
-- **Synoptic-scale dynamics** (100-1000 km horizontal scales)
-- **Meridional energy transport** in mid-latitude systems
-- **Cyclogenesis** and frontal development
+**Key Editable Parameters are found in `INPUT.txt`**
+Inside this program:
+- `Ujet`: **Jet velocity** (currently hardcoded as 60 m/s)
+- `Tdamping_days`: **Damping timescale in days** (currently hardcoded as 2.7557)
 
-### Norwegian vs. Shapiro-Keyser Cyclone Models
+### `INPUT.txt`
 
-The code captures the transition between two classical conceptual models of extratropical cyclone evolution:
+All simulation parameters are specified in `INPUT.txt`. Below is a detailed description of each parameter:
 
-**Norwegian Model**: Cold front overtakes warm front → occlusion → decay  
-**Shapiro-Keyser Model**: Frontal fracture → bent-back warm front → warm-core seclusion
+| Parameter | Type | Unit | Description |
+|-----------|------|------|-------------|
+| `fileName_root` | string | - | Output directory name for results |
+| `Nx` | integer | - | Horizontal grid resolution in x-direction (zonal) |
+| `Ny` | integer | - | Horizontal grid resolution in y-direction (meridional) |
+| `Nz` | integer | - | Vertical grid resolution |
+| `Lx` | real | m | Domain size in x-direction (zonal) |
+| `Ly` | real | m | Domain size in y-direction (meridional) |
+| `Lz` | real | m | Domain height (vertical extent) |
+| `DT` | real | s | Time step for integration |
+| `f0` | real | 1/s | Coriolis parameter at reference latitude |
+| `beta` | real | 1/(m·s) | Meridional gradient of Coriolis parameter (β-plane) |
+| `nu` | real | m²ˢ/s | Hyperviscosity coefficient |
+| `p` | integer | - | Order of hyperviscosity (typically 4 or 8; ∇²ᵖ dissipation) |
+| `Initial_perturbation` | real | - | Amplitude of initial Gaussian perturbation (dimensionless, 0-1) |
+| `kx_initial` | integer | - | Zonal wavenumber of initial perturbation |
+| `ky_initial` | integer | - | Meridional wavenumber of initial perturbation |
+| `Nsave` | integer | - | Save output every Nsave timesteps |
+| `Tfinal` | real | s | Total simulation time |
+| `dealiasing_condition` | logical | - | Enable spectral dealiasing (.true. or .false.) |
+| `nonlinear_condition` | logical | - | Enable nonlinear terms (.true.) or linear mode (.false.) |
+| `friction_bottom` | real | - | Surface friction coefficient at bottom boundary |
 
-Our simulations demonstrate that these distinct pathways emerge naturally from baroclinic instability under different initial and environmental conditions, suggesting they represent different manifestations of the same underlying dynamics rather than fundamentally different physical mechanisms.
+**The three different cases treated in the scientific article can be found at `INPUT_Run1.txt`, `INPUT_Run2.txt` and `INPUT_Run3.txt`.**
 
 ---
-
-## Code Structure
