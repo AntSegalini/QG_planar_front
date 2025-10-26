@@ -78,4 +78,36 @@ All simulation parameters are specified in `INPUT.txt`. Below is a detailed desc
 
 **The three different cases treated in the scientific article can be found at `INPUT_Run1.txt`, `INPUT_Run2.txt` and `INPUT_Run3.txt`.**
 
+### `PROFILES.py`
+A Python utility for generating atmospheric background profiles and computing the model's characteristic timescales.
+
+**Functions:**
+- Generates vertical profiles of background zonal wind (U), density (ρ), and buoyancy frequency (N²).
+- Computes vertical derivatives required by the QG model (dU/dz, d²U/dz², dρ/dz, dN²/dz).
+- Exports profiles to `PROFILES.txt` for use in the Fortran solver.
+- Calculates the **model timescale (Ts)** from physical parameters.
+
+**Critical Note on Parameter Linkage:**
+
+In the QG framework, **parameters are interdependent** and cannot be freely chosen independently. The model's characteristic timescale is governed by:
+
+\[
+T_s = \frac{\eta \cdot N \cdot H}{f \cdot U_{max}}
+\]
+
+where:
+- η: Non-dimensional scaling factor
+- N: Buoyancy frequency
+- H: Domain height
+- f: Coriolis parameter
+- U_max: Maximum jet velocity
+
+**Important:** Users must ensure consistency between:
+1. `N` and `N2` in the profile
+2. `Umax` in this script (currently hardcoded as 60 m/s)
+3. `LAMBDA` in this script (must match Fortran code: currently 10.0/Lz)
+4. `f0` and `Lz` in the Fortran INPUT.txt
+
+Changing any of these independently will break the model balance and lead to unrealistic dynamics. The output timescale calculation needs to be updated at `QG_plane_front.f90` for consistency.
+
 ---
