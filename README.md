@@ -33,6 +33,60 @@ This implementation is particularly valuable for researchers interested in atmos
 
 ---
 
+# How to Use
+
+Follow these steps to set up and run a QG fronts simulation:
+
+### Step 1: Edit `INPUT.txt`
+
+### Step 2: Generate Atmospheric Profiles and Calculate Timescale at `create_profiles_and_Ts.py`
+
+### Step 3: Update Fortran Code with Timescale and Parameters
+
+**Important:** Ensure consistency between Python and Fortran codes:
+
+### Step 4: Compile the Code
+
+Run the makefile to compile the Fortran code with MPI support
+```bash
+bash makefile.sh
+```
+
+### Step 5: Execute the Simulation with MPI
+
+Run the compiled executable with parallel processing:
+
+```bash
+# Run on 4 processors
+mpirun -np 4 ./QG_planar_front_executable
+
+# Run on single processor (not recommended for large domains)
+./QG_planar_front_executable
+```
+
+**Output files** are saved in the directory specified by `fileName_root` in INPUT.txt:
+- `*_U_*.bin`: Zonal velocity field
+- `*_V_*.bin`: Meridional velocity field
+- `*_ZETA_*.bin`: Relative vorticity (∇²ψ)
+- `*_B_*.bin`: Buoyancy field
+
+Each file contains metadata (time, grid dimensions, coordinates) followed by the 3D field data.
+
+---
+
+## Troubleshooting
+
+**Simulation becomes unstable:**
+- Reduce `DT` (time step)
+- Increase `nu` (hyperviscosity)
+- Check parameter consistency between Python and Fortran
+
+**Compilation errors:**
+- Ensure FFTW3, LAPACK, and MPI are installed
+- Check library paths in makefile
+
+---
+
 ## Code Structure
 
 ### `QG_plane_front.f90`
