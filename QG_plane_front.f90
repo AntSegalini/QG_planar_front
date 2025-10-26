@@ -15,21 +15,24 @@ program QG_plane
     integer :: i, j, p, iter, mm, nn, &
                Nx, Ny, Nz, NSx, NSy, NSz, NGx, NGy, NGz, &
                ierr, rank, nproc, ky_initial, Nsave
+
+    real(8) :: t_start, t_end
     
     real(8), allocatable, dimension(:)   :: x, y, z, kx, ky
-    real(8), allocatable, dimension(:,:) :: T, T1, T2, T3, T4, Tinv, phi, k2, OPE1, OPE2
+    real(8), allocatable, dimension(:,:) :: T, T1, T2, T3, T4, Tinv, phi, k2, OPE1, OPE2, der2_temperature_profile_zextended, temperature_profile_zextended
+
     
     real(8) :: Lx, Ly, Lz, f0, beta, DT, nu, dPSI0bottom, dPSI0top, tempo, tempo1, tempo2, Tfinal, &
-               C0, C, Az, Bz, Initial_perturbation, maxU, maxV, LAMBDA, delta, friction_bottom, Tdamping, kx_initial
+               C0, C, Az, Bz, Initial_perturbation, maxU, maxV, LAMBDA, delta, friction_bottom, Tdamping, kx_initial, tilt, shift
 
     real(8), allocatable, dimension(:) :: detadz, Ubar, dUbar, d2Ubar, rhobar, drhobar, N2bar, dN2bar, Q0, & 
                                 z_file, U0_file, dU0_file, d2U0_file, rho_file, drho_file, N2_file, dN2_file, &
-                                Q0_extended, Ubar_extended, z_extended, temperature_profile, der2_temperature_profile,QX_extended
+                                Q0_extended, Ubar_extended, z_extended, temperature_profile,QX_extended
                    
     complex(8), allocatable, dimension(:,:,:) :: Q_hat, Qbase_hat, Q_hat_old
     complex(8), allocatable, dimension(:,:)   :: dPSI_bottom_hat, dPSI_top_hat, dPSI_bottom_hat_old, &
                                                  dPSI_top_hat_old, A0, Ak2, dPSIbase_bottom_hat, dPSIbase_top_hat
-
+                                                 
     character(len=100) :: line, str2, fileName_root
 
     real(8), allocatable :: Qx(:,:,:)
@@ -37,6 +40,7 @@ program QG_plane
 
     ! MPI initialization
     call MPI_Init(ierr)
+    t_start = MPI_Wtime()
     call MPI_Comm_size(MPI_COMM_WORLD, nproc, ierr)
     call MPI_Comm_rank(MPI_COMM_WORLD, rank, ierr)
 
@@ -50,8 +54,8 @@ program QG_plane
     close (10) 
 
     LAMBDA=10.0_8/Lz            ! shear of the background (horizontally averaged) zonal velocity
-    delta=LAMBDA*Ly*Lz/(2*50)   ! tuned to get 50 m/s in the jet
-    Tdamping= 86400.0_8         ! attenuation coefficient of the damping term
+    delta=LAMBDA*Ly*Lz/(2*60)   ! tuned to get 50 m/s in the jet
+    Tdamping= 2.7557*86400.0_8        ! attenuation coefficient of the damping term
     if (rank==0) then 
         print*, 'delta is', delta/1000,' km'
     end if
@@ -172,21 +176,38 @@ program QG_plane
     allocate(Q_hat(NSz,NSy,NSx), dPSI_bottom_hat(NSy,NSx), dPSI_top_hat(NSy,NSx), phi(NGx,NGy), &
             Qbase_hat(NSz,NSy,NSx), dPSIbase_bottom_hat(NSy,NSx), dPSIbase_top_hat(NSy,NSx))
     allocate(Q_hat_old(NSz,NSy,NSx), dPSI_bottom_hat_old(NSy,NSx), dPSI_top_hat_old(NSy,NSx))
-    allocate(temperature_profile(NGy),der2_temperature_profile(NGy))
+    allocate(temperature_profile_zextended(NGz,NGy), temperature_profile(NGy),der2_temperature_profile_zextended(NGz,NGy))
 
     do i=1,NGx
         phi(i,:) = exp(-((x(i)-Lx/2)**2+y**2)/(2*(delta/kx_initial)**2)) ! here kx_initial is used to set the width of the gaussian perturbation
     end do
-    
-    temperature_profile = - tanh(y/delta)/2                                             ! normalized by the temperature range
-    der2_temperature_profile = (1.0/delta**2) * tanh(y/delta)*(1 - tanh(y/delta)**2)      ! normalized by the temperature range
 
-    phi=phi*Initial_perturbation*LAMBDA*Ly    
+    ! do i = 1, NGx
+    !     phi(i,:) = exp(-((x(i) - 1.3633e6_8)**2 + y**2) / (2*(delta/kx_initial)**2)) + exp(-((x(i) - 2.7267e6_8)**2 + y**2) / (2*(delta/kx_initial)**2))
+    ! end do
+
+    ! do i = 1, NGx
+    !     phi(i,:) = exp(-((x(i) - Lx/2)**2 + (y - 9.372e5_8)**2) / (2*(delta/kx_initial)**2)) + &
+    !            exp(-((x(i) - Lx/2)**2 + (y + 9.372e5_8)**2) / (2*(delta/kx_initial)**2))
+    ! end do
+
+    tilt = 0.0_8
+
+    do j=1, NGz
+        shift = tilt * (z_extended(j))
+        do i =1, NGy
+            temperature_profile_zextended(j,i) = -tanh((y(i)-shift)/delta)/2.0_8 
+            der2_temperature_profile_zextended(j,i) = (1.0_8/delta**2) * tanh((y(i)-shift)/delta)*(1 - tanh((y(i)-shift)/delta)**2)
+        end do
+    end do                                       ! normalized by the temperature range
+
+    phi=phi*Initial_perturbation*LAMBDA*Ly   
+    temperature_profile = temperature_profile_zextended(1,:)       
     do i=1,NGy 
         phi(:,i)=phi(:,i) + LAMBDA*( y(i) + Ly*temperature_profile(i))
     end do 
     call grid_2_spectral_XYplane(phi, dPSI_bottom_hat_old)
-
+    temperature_profile = temperature_profile_zextended(NGz,:)
     do i=1,NGy 
         phi(:,i)= LAMBDA*( y(i) + Ly*temperature_profile(i))
     end do 
@@ -204,8 +225,8 @@ program QG_plane
     allocate(Qx(NGz,NGx,NGy))
     do i=1,NGy
         do j=1,NGz
-            Qx(j,:,i) = LAMBDA*Ly*z_extended(j) * der2_temperature_profile(i) + QX_extended(j)*LAMBDA*( y(i) + &
-                        Ly*temperature_profile(i))
+            Qx(j,:,i) = LAMBDA*Ly*z_extended(j) * der2_temperature_profile_zextended(j,i) + QX_extended(j)*LAMBDA*( y(i) + &
+                        Ly*temperature_profile_zextended(j,i))
         end do
     end do
     call grid_2_spectral_FFT(Qx, Q_hat_old)
@@ -243,6 +264,10 @@ program QG_plane
     ! ###################################################################
 
     call terminate_FFTW    
+    t_end = MPI_Wtime()
+    if (rank == 0) then
+        print *, 'Total wall-clock time (s): ', t_end - t_start
+    end if
     call MPI_Finalize(ierr) 
 
     contains
@@ -320,8 +345,15 @@ program QG_plane
                 
         call grid_2_spectral_XYplane( dPSI0bottom * V(1,:,:), NL_dPSI_bottom_hat)
         call grid_2_spectral_XYplane( dPSI0top * V(NGz,:,:),  NL_dPSI_top_hat)
-        NL_dPSI_bottom_hat = NL_dPSI_bottom_hat + AUXbottom + dPSIbase_bottom_hat - (N2bar(1)*friction_bottom/f0)*k2*sum(PSI_hat,1)
+        NL_dPSI_bottom_hat = NL_dPSI_bottom_hat + AUXbottom + dPSIbase_bottom_hat
         NL_dPSI_top_hat    = NL_dPSI_top_hat    + AUXtop + dPSIbase_top_hat
+
+        do ii=1,NSy
+            do jj=1,NSx
+                PSI_hat(1,ii,jj)=dot_product(T(1,:),PSI_hat(:,ii,jj))
+            end do
+            NL_dPSI_bottom_hat(ii,:) = NL_dPSI_bottom_hat(ii,:) - k2(ii,:) * (N2bar(1)*friction_bottom/f0)*PSI_hat(1,ii,:)
+        end do
         
         do ii=1,NGz
             V(ii,:,:) = U(ii,:,:)*Ubar_extended(ii) + Q0_extended(ii)*V(ii,:,:)
@@ -429,7 +461,13 @@ program QG_plane
         call grid_2_spectral_XYplane(DERt2 + V(NGz,:,:)*DERtop,  NL_dPSI_top_hat)
         NL_Q_hat = NL_Q_hat + Qbase_hat
         
-        NL_dPSI_bottom_hat = NL_dPSI_bottom_hat + dPSIbase_bottom_hat - (N2bar(1)*friction_bottom/f0)*k2*sum(PSI_hat,1)
+        do ii=1,NSy
+            do jj=1,NSx
+                PSI_hat(1,ii,jj)=dot_product(T(1,:),PSI_hat(:,ii,jj))
+            end do
+            NL_dPSI_bottom_hat(ii,:) = NL_dPSI_bottom_hat(ii,:) - k2(ii,:) * (N2bar(1)*friction_bottom/f0)*PSI_hat(1,ii,:)
+        end do
+        NL_dPSI_bottom_hat = NL_dPSI_bottom_hat + dPSIbase_bottom_hat
         NL_dPSI_top_hat    = NL_dPSI_top_hat    + dPSIbase_top_hat
         
         if (rank==0) then
