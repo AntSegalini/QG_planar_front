@@ -18,7 +18,7 @@ mpifort -c QG_plane_front.f90 -I/usr/local/include -L/usr/local/lib \
 -llapack -lblas -O3
 
 # Link everything into executable "prova"
-mpifort -o prova QG_plane_front.o threeD_FFTW_CHEB.o -I/usr/local/include -L/usr/local/lib \
+mpifort -o QG_planar_front_executable QG_plane_front.o threeD_FFTW_CHEB.o -I/usr/local/include -L/usr/local/lib \
 -lfftw3_mpi -lfftw3 -llapack -lblas -O3 -march=native
 
 echo "Compilation completed successfully."
