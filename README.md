@@ -179,57 +179,56 @@ A spectral transform module providing:
 
 ══════════════════
 
-# `plots.py`
+### `plots.py`
 
 This module provides visualization and analysis tools for geophysical or oceanic simulation data read using `read_grid_BIN_file`.  
 Functions generate static plots or animations of buoyancy (`B`), vorticity (`ZETA`), and related quantities.
 
 ---
 
-### `compute_Q(U, V, B, dx, dy)`
+ `compute_Q(U, V, B, dx, dy)`
 Computes Q-vector components (`Qx`, `Qy`) from velocity and buoyancy gradients using quasi-geostrophic theory.
 
 ---
 
 ## Animation and Sequences
 
-### `plot_B_ZETA_sequence(foldername, colormap='turbo', level=0)`
+`plot_B_ZETA_sequence(foldername, colormap='turbo', level=0)`
 Animates `B` and `ZETA` at a selected vertical level over time.
 
-### `B_video(foldername, colormap='RdBu_r')`
+`B_video(foldername, colormap='RdBu_r')`
 Creates an MP4 video (`B_bottom.mp4`) showing time evolution of the bottom buoyancy field with velocity vectors.
 
 ---
 
 ## Vorticity (ZETA) Plots
 
-### `plot_one_field_ZETA(foldername, timestep, colormap='twilight', level=0, projection='XY')`
+ `plot_one_field_ZETA(foldername, timestep, colormap='twilight', level=0, projection='XY')`
 Plots a single `ZETA` field with optional pressure contours.
 
-### `plot_two_field_ZETA(foldername, timestep, colormap='twilight', levels=(0, -1), projection='XY')`
+`plot_two_field_ZETA(foldername, timestep, colormap='twilight', levels=(0, -1), projection='XY')`
 Compares `ZETA` at two vertical levels (e.g., top and bottom).
 
-### `plot_one_field_ZETA_mult(foldername, timestep=[...], colormap='twilight', level=0)`
+ `plot_one_field_ZETA_mult(foldername, timestep=[...], colormap='twilight', level=0)`
 Shows multiple timesteps of `ZETA` in a 3×2 grid with velocity quivers.
 
 ---
 
 ## Buoyancy (B) Plots
 
-### `plot_one_field_B_mult(foldername, timestep=[...], colormap='twilight', level=0)`
+ `plot_one_field_B_mult(foldername, timestep=[...], colormap='twilight', level=0)`
 Displays multiple `B` snapshots in a 2×2 grid, with optional Q-vectors.
 
-### `plot_sequence_B(foldername, timesteps, colormap='twilight', projection='XY', level=0)`
+ `plot_sequence_B(foldername, timesteps, colormap='twilight', projection='XY', level=0)`
 Plots 10 snapshots of `B` (2×5 layout) for time evolution comparison.
 
 ---
 
 ## Wind and Derived Quantities
 
-### `plot_zonalwind(foldername, timestep, colormap1='bwr')`
+ `plot_zonalwind(foldername, timestep, colormap1='bwr')`
 Plots zonal wind (`U`) in XZ and XY planes at different levels.
-
-### `time_series_Q_magnitude(foldername, z_level=0)`
+ `time_series_Q_magnitude(foldername, z_level=0)`
 Plots time evolution of integrated Q-vector magnitude.
 
 ---
