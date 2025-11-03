@@ -179,14 +179,12 @@ A spectral transform module providing:
 
 ══════════════════
 
-# Plotting and Analysis Functions Overview
+# `plots.py`
 
 This module provides visualization and analysis tools for geophysical or oceanic simulation data read using `read_grid_BIN_file`.  
 Functions generate static plots or animations of buoyancy (`B`), vorticity (`ZETA`), and related quantities.
 
 ---
-
-## Utility
 
 ### `compute_Q(U, V, B, dx, dy)`
 Computes Q-vector components (`Qx`, `Qy`) from velocity and buoyancy gradients using quasi-geostrophic theory.
