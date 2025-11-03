@@ -191,7 +191,7 @@ Computes Q-vector components (`Qx`, `Qy`) from velocity and buoyancy gradients u
 
 ---
 
-## Animation and Sequences
+- Animation and Sequences
 
 `plot_B_ZETA_sequence(foldername, colormap='turbo', level=0)`
 Animates `B` and `ZETA` at a selected vertical level over time.
@@ -201,7 +201,7 @@ Creates an MP4 video (`B_bottom.mp4`) showing time evolution of the bottom buoya
 
 ---
 
-## Vorticity (ZETA) Plots
+- Vorticity (ZETA) Plots
 
  `plot_one_field_ZETA(foldername, timestep, colormap='twilight', level=0, projection='XY')`
 Plots a single `ZETA` field with optional pressure contours.
@@ -214,7 +214,7 @@ Shows multiple timesteps of `ZETA` in a 3×2 grid with velocity quivers.
 
 ---
 
-## Buoyancy (B) Plots
+- Buoyancy (B) Plots
 
  `plot_one_field_B_mult(foldername, timestep=[...], colormap='twilight', level=0)`
 Displays multiple `B` snapshots in a 2×2 grid, with optional Q-vectors.
@@ -224,7 +224,7 @@ Plots 10 snapshots of `B` (2×5 layout) for time evolution comparison.
 
 ---
 
-## Wind and Derived Quantities
+- Wind and Derived Quantities
 
  `plot_zonalwind(foldername, timestep, colormap1='bwr')`
 Plots zonal wind (`U`) in XZ and XY planes at different levels.
@@ -233,7 +233,7 @@ Plots time evolution of integrated Q-vector magnitude.
 
 ---
 
-## Dependencies
+- Dependencies
 - `matplotlib` for plotting and animation  
 - `numpy`, `scipy` for calculations  
 - `read_grid_BIN_file` from `load_case.py` for data input
